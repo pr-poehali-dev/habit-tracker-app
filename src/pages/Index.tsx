@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
+
 import Icon from "@/components/ui/icon";
 import { toast } from "@/hooks/use-toast";
 
@@ -15,13 +15,7 @@ interface Habit {
   lastCompleted?: string;
 }
 
-interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  unlocked: boolean;
-  icon: string;
-}
+
 
 const Index = () => {
   const [habits, setHabits] = useState<Habit[]>([
@@ -36,29 +30,7 @@ const Index = () => {
     null,
   );
 
-  const [achievements] = useState<Achievement[]>([
-    {
-      id: "1",
-      title: "Первый шаг",
-      description: "Добавили первую привычку",
-      unlocked: true,
-      icon: "Star",
-    },
-    {
-      id: "2",
-      title: "Железная воля",
-      description: "7 дней подряд",
-      unlocked: false,
-      icon: "Zap",
-    },
-    {
-      id: "3",
-      title: "Мастер продуктивности",
-      description: "10 привычек в день",
-      unlocked: false,
-      icon: "Trophy",
-    },
-  ]);
+
 
   // Timer logic
   useEffect(() => {
@@ -110,12 +82,7 @@ const Index = () => {
             ? habit.streak + 1
             : Math.max(0, habit.streak - 1);
 
-          if (newCompleted && newStreak === 7) {
-            toast({
-              title: "🔥 Железная воля!",
-              description: "7 дней подряд!",
-            });
-          }
+
 
           return { ...habit, completed: newCompleted, streak: newStreak };
         }
@@ -164,9 +131,7 @@ const Index = () => {
           <p className="text-slate-600">Следи за собой каждый день</p>
         </header>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6">
             {/* Add Habit Form */}
             <Card className="hover:shadow-md transition-all duration-300 animate-fade-in">
               <CardHeader>
@@ -180,13 +145,15 @@ const Index = () => {
                   <Input
                     value={newHabit}
                     onChange={(e) => setNewHabit(e.target.value)}
-                    placeholder="Введите новую привычку..."
+                    placeholder="Например: пить воду, читать, гулять..."
                     onKeyPress={(e) => e.key === "Enter" && addHabit()}
-                    className="flex-1"
+                    className="flex-1 focus:ring-2 focus:ring-indigo-300 transition-all"
+                    title="Нажмите Enter для добавления"
                   />
                   <Button
                     onClick={addHabit}
-                    className="bg-indigo-600 hover:bg-indigo-700"
+                    className="bg-indigo-600 hover:bg-indigo-700 hover:scale-105 transition-all duration-200"
+                    title="Добавить привычку"
                   >
                     <Icon name="Plus" size={16} />
                   </Button>
@@ -211,18 +178,19 @@ const Index = () => {
                   {habits.map((habit) => (
                     <div
                       key={habit.id}
-                      className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                      className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-all duration-300 hover:shadow-md transform hover:scale-[1.02]"
                     >
                       <div className="flex items-center gap-3">
                         <Button
                           variant={habit.completed ? "default" : "outline"}
                           size="sm"
                           onClick={() => toggleHabit(habit.id)}
-                          className={
+                          className={`transition-all duration-200 hover:scale-110 ${
                             habit.completed
                               ? "bg-emerald-600 hover:bg-emerald-700"
-                              : ""
-                          }
+                              : "hover:border-emerald-400"
+                          }`}
+                          title={habit.completed ? "Отменить выполнение" : "Отметить выполненной"}
                         >
                           <Icon
                             name={habit.completed ? "Check" : "Circle"}
@@ -236,7 +204,7 @@ const Index = () => {
                             {habit.name}
                           </span>
                           {habit.streak > 0 && (
-                            <div className="flex items-center gap-1 mt-1">
+                            <div className="flex items-center gap-1 mt-1 animate-pulse">
                               <Icon
                                 name="Flame"
                                 size={14}
@@ -258,7 +226,8 @@ const Index = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => deleteHabit(habit.id)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 transition-all duration-200 hover:scale-110"
+                        title="Удалить привычку"
                       >
                         <Icon name="X" size={16} />
                       </Button>
@@ -277,139 +246,84 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Progress Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="BarChart3" size={20} className="text-blue-600" />
-                  Прогресс
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Выполнено сегодня</span>
-                      <span className="font-medium">
-                        {completedCount} / {totalCount}
-                      </span>
+            
+            {/* Stats and Timer Grid */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Progress Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon name="BarChart3" size={20} className="text-blue-600" />
+                    Статистика
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Выполнено сегодня</span>
+                        <span className="font-medium">
+                          {completedCount} / {totalCount}
+                        </span>
+                      </div>
+                      <Progress value={progressPercentage} className="h-2" />
                     </div>
-                    <Progress value={progressPercentage} className="h-2" />
-                  </div>
 
-                  {progressPercentage === 100 && totalCount > 0 && (
-                    <div className="text-center p-3 bg-emerald-50 rounded-lg">
-                      <Icon
-                        name="Trophy"
-                        size={24}
-                        className="mx-auto text-emerald-600 mb-1"
-                      />
-                      <p className="text-emerald-700 font-medium text-sm">
-                        Все привычки выполнены! 🎉
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Focus Timer */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Timer" size={20} className="text-purple-600" />
-                  Фокус-сессия
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center space-y-4">
-                  <div className="text-3xl font-mono font-bold text-purple-600">
-                    {formatTime(focusTime)}
-                  </div>
-                  <div className="flex gap-2">
-                    {!isTimerRunning ? (
-                      <Button
-                        onClick={startTimer}
-                        className="bg-purple-600 hover:bg-purple-700 flex-1"
-                      >
-                        <Icon name="Play" size={16} className="mr-1" />
-                        Начать
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={stopTimer}
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        <Icon name="Square" size={16} className="mr-1" />
-                        Стоп
-                      </Button>
+                    {progressPercentage === 100 && totalCount > 0 && (
+                      <div className="text-center p-3 bg-emerald-50 rounded-lg">
+                        <Icon
+                          name="Trophy"
+                          size={24}
+                          className="mx-auto text-emerald-600 mb-1"
+                        />
+                        <p className="text-emerald-700 font-medium text-sm">
+                          Все привычки выполнены! 🎉
+                        </p>
+                      </div>
                     )}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            {/* Achievements */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Award" size={20} className="text-yellow-600" />
-                  Достижения
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {achievements.map((achievement) => (
-                    <div
-                      key={achievement.id}
-                      className={`flex items-center gap-3 p-2 rounded-lg ${
-                        achievement.unlocked
-                          ? "bg-yellow-50"
-                          : "bg-slate-50 opacity-60"
-                      }`}
-                    >
-                      <Icon
-                        name={achievement.icon as any}
-                        size={20}
-                        className={
-                          achievement.unlocked
-                            ? "text-yellow-600"
-                            : "text-slate-400"
-                        }
-                      />
-                      <div className="flex-1">
-                        <div
-                          className={`font-medium text-sm ${
-                            achievement.unlocked
-                              ? "text-yellow-700"
-                              : "text-slate-500"
-                          }`}
+              {/* Focus Timer */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon name="Timer" size={20} className="text-purple-600" />
+                    Фокус-сессия
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center space-y-4">
+                    <div className="text-3xl font-mono font-bold text-purple-600">
+                      {formatTime(focusTime)}
+                    </div>
+                    <div className="flex gap-2">
+                      {!isTimerRunning ? (
+                        <Button
+                          onClick={startTimer}
+                          className="bg-purple-600 hover:bg-purple-700 flex-1 hover:scale-105 transition-all duration-200"
+                          title="Начать 25-минутную фокус-сессию"
                         >
-                          {achievement.title}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {achievement.description}
-                        </div>
-                      </div>
-                      {achievement.unlocked && (
-                        <Badge
-                          variant="secondary"
-                          className="bg-yellow-100 text-yellow-700"
+                          <Icon name="Play" size={16} className="mr-1" />
+                          Начать
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={stopTimer}
+                          variant="outline"
+                          className="flex-1 hover:scale-105 transition-all duration-200"
+                          title="Остановить таймер"
                         >
-                          ✓
-                        </Badge>
+                          <Icon name="Square" size={16} className="mr-1" />
+                          Стоп
+                        </Button>
                       )}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
         </div>
       </div>
     </div>
